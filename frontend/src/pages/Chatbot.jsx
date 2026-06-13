@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Cpu, Loader2, Search } from 'lucide-react';
 
-// --- API Configuration ---
-const apiKey = "AIzaSyDSQkcYAyJ3UnNx9kj3olI9R0aOX8Vu38A";
+// --- API Configuration --
 const modelName = "gemini-2.5-flash-preview-09-2025";
 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 

@@ -1,5 +1,5 @@
 require("dotenv").config();
-const baseUrl = `${req.protocol}://${req.get("host")}`;
+
 
 
 
@@ -81,7 +81,7 @@ const upload = multer({ storage });
 // --- File upload route ---
 app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-
+const baseUrl = `${req.protocol}://${req.get("host")}`;
 res.json({
   url: `${baseUrl}/uploads/${req.file.filename}`,
   type: req.body.type || "file",

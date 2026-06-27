@@ -1,5 +1,8 @@
 require("dotenv").config();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8a0e0284 (const baseUrl = `${req.protocol}://${req.get("host")}`;#)
 
 
 

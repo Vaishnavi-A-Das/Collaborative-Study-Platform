@@ -14,12 +14,25 @@ import { toast } from "sonner";
 
 const Dashboard = () => {
   const [selectedRoomId, setSelectedRoomId] = useState(null);
-  const user =
- JSON.parse(
-  localStorage.getItem(
-    "user"
-  )
-);
+const [
+  user,
+  setUser
+] = useState(null);
+
+useEffect(() => {
+
+  const storedUser =
+    JSON.parse(
+      localStorage.getItem(
+        "user"
+      )
+    );
+
+  setUser(
+    storedUser
+  );
+
+}, []);
 
 
 const [
@@ -35,6 +48,8 @@ const currentUserName =
   user?.username ||
   user?.email;
   const [rooms, setRooms] = useState([]);
+
+  const [callRequest, setCallRequest] = useState(null);
   
   // Room memberships - tracks which users are in which rooms
   const [roomMemberships, setRoomMemberships] = useState({});
@@ -57,7 +72,7 @@ useEffect(() => {
       try {
         const response =
           await fetch(
-            "http://localhost:5000/api/users"
+            "http://192.168.1.7:5000/api/users"
           );
 
         const data =
@@ -88,7 +103,7 @@ useEffect(() => {
 
         const response =
           await fetch(
-            `http://localhost:5000/api/rooms/${userId}`
+            `http://192.168.1.7:5000/api/rooms/${userId}`
           );
 
         const data =
@@ -125,19 +140,21 @@ useEffect(() => {
     !userId ||
     !currentUserName
   ) return;
-
-  const socket =
-    initSocket(
-      userId,
-      currentUserName
-    );
-
-  socket.emit(
-    "getOnlineUsers"
+const socket =
+  initSocket(
+    userId,
+    currentUserName
   );
 
-  socket.on(
-    "onlineUsers",
+if (!socket)
+  return;
+
+socket.emit(
+  "getOnlineUsers"
+);
+
+socket.on(
+  "onlineUsers",
     (users) => {
 
       setOnlineUserIds(
@@ -387,14 +404,22 @@ socket.emit(
   };
 
   useEffect(() => {
-  const socket =
-    initSocket(
-      userId,
-      currentUserName
-    );
+    console.log({
+  userId,
+  currentUserName
+});
 
-  socket.on(
-    "newInvitation",
+  const socket =
+  initSocket(
+    userId,
+    currentUserName
+  );
+
+if (!socket)
+  return;
+
+socket.on(
+  "newInvitation",
     (invitation) => {
       setPendingInvitations(
         (prev) => ({
@@ -448,7 +473,7 @@ const handleAcceptInvitation =
 
       const response =
         await fetch(
-          "http://localhost:5000/api/rooms/join",
+          "http://192.168.1.7:5000/api/rooms/join",
           {
             method:
               "POST",
@@ -479,7 +504,7 @@ const handleAcceptInvitation =
   // REFRESH ROOMS
       const roomsResponse =
         await fetch(
-          `http://localhost:5000/api/rooms/${userId}`
+          `http://192.168.1.7:5000/api/rooms/${userId}`
         );
 
       const updatedRooms =
@@ -535,40 +560,6 @@ const handleAcceptInvitation =
     });
   };
 
- 
-//call accept/reject
-const handleCallMember =
- async (
-  member,
-  type
- ) => {
-
-  const socket =
-    initSocket(
-      userId,
-      currentUserName
-    );
-
-  const targetUserId =
-    String(
-      member.user_id?._id ||
-      member.user_id
-    );
-
-  console.log(
-    "CALLING:",
-    targetUserId
-  );
-
-  socket.emit(
-    "callUser",
-    {
-      toId:
-        targetUserId,
-      type,
-    }
-  );
-};
 
   const selectedRoom = rooms.find((r) => r._id === selectedRoomId);
   const currentRoomMembers =
@@ -685,6 +676,8 @@ const availableUsersToInvite =
         userRole={isAdmin ? "admin" : "member"}
         roomName={selectedRoom?.name || ""}
         isMember={isMemberOfRoom}
+        callRequest={callRequest}
+        clearCallRequest={() => setCallRequest(null)}
       />
       <MembersList
         roomId={selectedRoomId}
@@ -694,7 +687,9 @@ const availableUsersToInvite =
         currentUserId={userId}
         onRemoveMember={handleRemoveMember}
         onInviteMembers={() => setShowInviteModal(true)}
-        onCallMember={handleCallMember}
+        onCallMember={(member, type) =>
+        setCallRequest({ member, type })
+    }
     
       />
 

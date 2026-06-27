@@ -22,7 +22,7 @@ const CreateRoomDialog = ({ open, onOpenChange, userId, onRoomCreated }) => {
 
       const response =
         await fetch(
-          "http://localhost:5000/api/rooms/create",
+          "http://192.168.1.7:5000/api/rooms/create",
           {
             method:
               "POST",

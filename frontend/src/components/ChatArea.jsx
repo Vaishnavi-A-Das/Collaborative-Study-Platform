@@ -7,7 +7,8 @@ import Whiteboard from "./Whiteboard";
 import EmojiPicker from "emoji-picker-react";
 const COMMON_EMOJIS = ["👍", "❤️", "😊", "🎉", "🔥", "👏", "✅"];
 
-const ChatArea = ({ roomId, userId, userRole, roomName, isMember }) => {
+const ChatArea = ({ roomId, userId, userRole, roomName, isMember,callRequest,
+    clearCallRequest }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -36,11 +37,41 @@ const ChatArea = ({ roomId, userId, userRole, roomName, isMember }) => {
   const peerConnections = useRef({});
   const socketRef =
   useRef(null);
+  const pendingOfferRef = useRef(null);
+  const pendingIceCandidates = useRef({});
+  const prepareOffer = async (fromId) => {
+    return await createPeerConnection(fromId, false);
+};
 
+const user =
+  JSON.parse(
+    localStorage.getItem(
+      "user"
+    )
+  );
+
+const username =
+  user?.username ||
+  user?.email;
+const localStreamRef =
+  useRef(null);
   const localVideoRef = useRef(null);
   const screenVideoRef = useRef(null);
   const localAudioRef = useRef(null);
   const [replyingTo,setReplyingTo] =useState(null);
+  useEffect(() => {
+    if (!callRequest) return;
+
+    startCall(
+        callRequest.type,
+        String(
+            callRequest.member.user_id?._id ||
+            callRequest.member.user_id
+        )
+    );
+
+    clearCallRequest();
+}, [callRequest]);
   // ICE servers configuration
   const iceServers = {
     iceServers: [
@@ -52,9 +83,22 @@ const ChatArea = ({ roomId, userId, userRole, roomName, isMember }) => {
   // Join room and handle socket events
   // Join room and handle socket events
 useEffect(() => {
-  if (!roomId || !isMember) return;
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  if (!roomId)
+    return;
+
+  console.log(
+    "JOIN ROOM EFFECT",
+    {
+      roomId,
+      isMember
+    }
+  );
+  
+
+  if (!isMember)
+    return;
+
 
   if (!user) {
     console.error("No logged-in user found");
@@ -69,15 +113,31 @@ useEffect(() => {
   socket;
 
   if (!socket) return;
+//join room
+socket.on(
+  "loadMessages",
+  (msgs) => {
 
-  // Join room
-  socket.emit("joinRoom", { roomId });
+    console.log(
+      "📥 RECEIVED MSGS:",
+      msgs
+    );
 
-  // Chat events
-  socket.on("loadMessages", (msgs) => {
-    setMessages(msgs);
-  });
+    setMessages(
+      msgs
+    );
+  }
+);
 
+console.log(
+ "📤 JOINING ROOM:",
+ roomId
+);
+
+socket.emit(
+ "joinRoom",
+ { roomId }
+);
   socket.on("newMessage", (msg) => {
     setMessages((prev) => [...prev, msg]);
   });
@@ -192,6 +252,40 @@ useEffect(() => {
     }
   }, [localStream]);
 
+  //bind local media to stream
+  useEffect(() => {
+
+  // ONLY for video calls
+  if (
+    activeCall?.type !==
+    "video"
+  ) return;
+
+  if (
+    localVideoRef.current &&
+    localStream
+  ) {
+
+    localVideoRef.current
+      .srcObject =
+      isScreenSharing &&
+      screenStream
+        ? screenStream
+        : localStream;
+
+    localVideoRef.current
+      .play()
+      .catch(
+        console.error
+      );
+  }
+
+}, [
+  localStream,
+  screenStream,
+  isScreenSharing,
+  activeCall
+]);
   // Attach screen share stream
   useEffect(() => {
     if (screenStream && screenVideoRef.current) {
@@ -204,12 +298,38 @@ useEffect(() => {
     setIncomingCall({ fromId, fromName, type });
   };
 
-  const handleCallAccepted = async ({ fromId }) => { 
-  console.log(
-    "CALL ACCEPTED"
-  );
-    await createPeerConnection(fromId, true);
-  };
+const handleCallAccepted =
+  async ({
+    fromId
+  }) => {
+
+    console.log(
+      "CALL ACCEPTED"
+    );
+
+    setActiveCall(
+      (prev) => ({
+        ...prev,
+        status:
+          "active",
+      })
+    );
+const stream =
+  activeCall?.stream ||
+  localStreamRef.current;
+
+console.log(
+  "CALLER STREAM:",
+  stream
+);
+
+setActiveCall(
+  (prev) => ({
+    ...prev,
+    status: "active",
+  })
+);
+};
 
   const handleCallRejected = ({ fromId, fromName }) => {
     toast.error(`${fromName} declined your call`);
@@ -218,31 +338,7 @@ useEffect(() => {
       delete peerConnections.current[fromId];
     }
   };
-  const handleCallMember =
- (
-  member,
-  type
- ) => {
-
-  const socket =
-    socketRef.current;
-
-  const targetUserId =
-    String(
-      member.user_id?._id ||
-      member.user_id
-    );
-
-  socket.emit(
-    "callUser",
-    {
-      toId:
-        targetUserId,
-
-      type,
-    }
-  );
-};
+ 
 
   const handleIceCandidate = async ({ fromId, candidate }) => {
     console.log(
@@ -251,34 +347,97 @@ useEffect(() => {
     const pc = peerConnections.current[fromId];
     if (pc && candidate) {
       try {
-        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        if (!pc.remoteDescription) {
+
+    if (!pendingIceCandidates.current[fromId])
+        pendingIceCandidates.current[fromId] = [];
+
+    pendingIceCandidates.current[fromId].push(candidate);
+
+    return;
+}
+
+await pc.addIceCandidate(
+    new RTCIceCandidate(candidate)
+);
       } catch (error) {
         console.error("Error adding ICE candidate:", error);
       }
     }
   };
+  
+  const processOffer = async (pc, fromId, offer, roomId) => {
 
-  const handleOffer = async ({ fromId, offer }) => {
-    const pc = await createPeerConnection(fromId, false);
-    console.log(
-  "📥 OFFER RECEIVED"
-);
-    try {
-      await pc.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      
-      const socket = socketRef.current;
-      console.log(
-  "📤 ANSWER SENT"
-);
-      socket.emit("answer", { toId: fromId, answer, roomId });
-    } catch (error) {
-      console.error("Error handling offer:", error);
+    await pc.setRemoteDescription(
+        new RTCSessionDescription(offer)
+    );
+    const pending =
+    pendingIceCandidates.current[fromId] || [];
+
+for (const candidate of pending) {
+
+    await pc.addIceCandidate(
+        new RTCIceCandidate(candidate)
+    );
+}
+
+delete pendingIceCandidates.current[fromId];
+
+    const mediaStream =
+    mediaStream ||
+    localStreamRef.current;
+
+    mediaStream.getTracks().forEach(track => {
+
+        const alreadyAdded =
+            pc.getSenders().some(
+                sender => sender.track === track
+            );
+
+        if (!alreadyAdded)
+            pc.addTrack(track, mediaStream);
+
+    });
+
+    const answer = await pc.createAnswer();
+
+    await pc.setLocalDescription(answer);
+
+    socketRef.current.emit("answer", {
+        toId: fromId,
+        answer,
+        roomId
+    });
+};
+
+const handleOffer = async ({ fromId, offer, roomId }) => {
+
+    const pc = await prepareOffer(fromId);
+
+    if (!localStreamRef.current) {
+
+        pendingOfferRef.current = {
+            pc,
+            fromId,
+            offer,
+            roomId
+        };
+
+        console.log("Buffered offer");
+
+        return;
     }
-  };
 
+    await processOffer(pc, fromId, offer, roomId);
+};
   const handleAnswer = async ({ fromId, answer }) => {
+    console.log(
+ "ANSWER DATA:",
+ {
+  fromId,
+  answer
+ }
+);
     const pc = peerConnections.current[fromId];
     console.log(
   "📥 ANSWER RECEIVED"
@@ -286,7 +445,14 @@ useEffect(() => {
     if (pc) {
       try {
         await pc.setRemoteDescription(new RTCSessionDescription(answer));
-      } catch (error) {
+        setActiveCall(
+  (prev) => ({
+    ...prev,
+    status: "active",
+  })
+);
+      } 
+      catch (error) {
         console.error("Error handling answer:", error);
       }
     }
@@ -318,7 +484,13 @@ useEffect(() => {
   };
 
   // Create peer connection
-  const createPeerConnection = async (peerId, isInitiator) => { 
+const createPeerConnection =
+ async (
+   peerId,
+   isInitiator,
+   providedStream = null
+ ) => {
+    
     // Prevent duplicates
 if (
   peerConnections.current[
@@ -345,8 +517,15 @@ if (
 
     // Add local stream tracks
     const stream =
-  localStream ||
-  window.currentCallStream;
+  providedStream ||
+  localStreamRef.current ||
+  localStream;
+
+ console.log(
+ "STREAM EXISTS?",
+ !!stream,
+ stream
+);
 
 if (
   stream
@@ -368,28 +547,47 @@ if (
     });
 }
     // Handle incoming tracks
-    pc.ontrack =
- (event) => {
+    pc.ontrack = (event) => {
+  const stream = event.streams[0];
 
-  console.log(
-    "🎥 TRACK RECEIVED",
-    peerId
-  );
+  console.log("🎥 TRACK KIND:", event.track.kind);
+  console.log("STREAM ACTIVE:", stream.active);
 
-  setRemotePeers(
-    (prev) => ({
-      ...prev,
-      [peerId]:
-        event.streams[0],
-    })
-  );
+  const videoTracks = stream.getVideoTracks();
+  const audioTracks = stream.getAudioTracks();
+
+  console.log("VIDEO TRACKS:", videoTracks);
+  console.log("AUDIO TRACKS:", audioTracks);
+
+  if (videoTracks.length > 0) {
+    console.log("VIDEO TRACK DETAILS:", {
+      enabled: videoTracks[0].enabled,
+      muted: videoTracks[0].muted,
+      readyState: videoTracks[0].readyState,
+      id: videoTracks[0].id,
+    });
+  }
+
+  if (audioTracks.length > 0) {
+    console.log("AUDIO TRACK DETAILS:", {
+      enabled: audioTracks[0].enabled,
+      muted: audioTracks[0].muted,
+      readyState: audioTracks[0].readyState,
+      id: audioTracks[0].id,
+    });
+  }
+
+  setRemotePeers(prev => ({
+    ...prev,
+    [peerId]: stream,
+  }));
 };
-
     // Handle ICE candidates
-    pc.onicecandidate = (event) => { console.log(
+    pc.onicecandidate = (event) => { 
+      if (event.candidate) {
+        console.log(
  "🧊 SENDING ICE"
 );
-      if (event.candidate) {
         const socket = socketRef.current;
         socket.emit("iceCandidate", {
           toId: peerId,
@@ -423,12 +621,20 @@ if (
   };
 
   // Start call
-  const startCall = async (type) => {
+ const startCall = async (
+    type,
+    targetUserId = null
+) => {
     const socket = socketRef.current;
     if (!socket) return;
 
-    const otherUsers = onlineUsers.filter((u) => u.userId !== userId);
-    if (otherUsers.length === 0) {
+    const usersToCall =
+targetUserId
+    ? [{ userId: targetUserId }]
+    : onlineUsers.filter(
+          u => u.userId !== userId
+      );
+    if (usersToCall.length === 0) {
       toast.info("No other members online to call");
       return;
     }
@@ -451,9 +657,22 @@ setLocalStream(
 );
 
 // SAVE STREAM IMMEDIATELY
-window.currentCallStream =
+localStreamRef.current =
   stream;
+for (const user of usersToCall) {
 
+  const pc =
+    await createPeerConnection(
+      user.userId,
+      true,
+      stream
+    );
+
+  console.log(
+    "📤 CALL OFFER CREATED",
+    user.userId
+  );
+}
 setActiveCall({
   type,
   status:
@@ -462,15 +681,16 @@ setActiveCall({
     
 
       // Emit call to all users in the room
-      otherUsers.forEach((user) => {
+      usersToCall.forEach((user) => {
         socket.emit("callUser", {
           toId: user.userId,
+
           type,
           roomId,
         });
       });
 
-      toast.success(`Calling ${otherUsers.length} member(s)...`);
+      toast.success(`Calling ${usersToCall.length} member(s)...`);
     } catch (error) {
       toast.error("Failed to access camera/microphone");
       console.error(error);
@@ -480,6 +700,32 @@ setActiveCall({
   // Answer call
   const answerCall = async (accept) => {
     const socket = socketRef.current;
+    const stream = await navigator.mediaDevices.getUserMedia({
+    video: incomingCall.type === "video",
+    audio: true,
+    });
+setLocalStream(stream);
+localStreamRef.current = stream;
+    if (pendingOfferRef.current) {
+
+    const {
+        pc,
+        fromId,
+        offer,
+        roomId
+    } = pendingOfferRef.current;
+
+    pendingOfferRef.current = null;
+
+    await processOffer(
+        pc,
+        fromId,
+        offer,
+        roomId,
+        stream
+    );
+    
+}
     if (!socket || !incomingCall) return;
 
     if (accept) {
@@ -489,7 +735,8 @@ setActiveCall({
           audio: true,
         });
         setLocalStream(stream);
-        window.currentCallStream = stream;
+        localStreamRef.current =
+  stream;
         setActiveCall({
           type: incomingCall.type,
           status: "active",
@@ -562,7 +809,9 @@ setActiveCall({
 
     // Replace back to camera video
     if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
+      const videoTrack =
+  localStreamRef.current
+    ?.getVideoTracks()[0];
       Object.values(peerConnections.current).forEach((pc) => {
         const sender = pc.getSenders().find((s) => s.track?.kind === "video");
         if (sender && videoTrack) {
@@ -581,7 +830,12 @@ setActiveCall({
   // End call
   const endCall = () => {
     if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
+      localStreamRef.current
+  ?.getTracks()
+  .forEach(
+    (track) =>
+      track.stop()
+  );
       setLocalStream(null);
     }
     if (screenStream) {
@@ -652,7 +906,7 @@ if (selectedFile) {
 
   const response =
   await fetch(
-    "http://localhost:5000/upload",
+    "http://192.168.1.7:5000/upload",
     {
       method: "POST",
       body: formData,
@@ -933,19 +1187,54 @@ const handleDeleteForMe =
                 {Object.entries(remotePeers).map(([peerId, stream]) => (
                   <div key={peerId} className="position-relative">
                     <video
-                      autoPlay
-                      playsInline
-                      ref={(el) => {
-                        if (el) el.srcObject = stream;
-                      }}
-                      style={{
-                        width: "200px",
-                        height: "150px",
-                        borderRadius: "8px",
-                        objectFit: "cover",
-                        border: "2px solid #fff",
-                      }}
-                    />
+  key={`${peerId}-${stream?.id}`}
+  autoPlay
+  muted={false}
+  playsInline
+  ref={(el) => {
+
+    if (
+      !el ||
+      !stream
+    ) return;
+
+    setTimeout(() => {
+
+      if (
+        el.srcObject !==
+        stream
+      ) {
+
+        console.log(
+          "🎬 ATTACHING VIDEO",
+          peerId
+        );
+
+        el.srcObject =
+          stream;
+
+        el.play()
+          .then(() =>
+            console.log(
+              "▶ VIDEO PLAYING"
+            )
+          )
+          .catch(
+            console.error
+          );
+      }
+
+    }, 100);
+  }}
+  style={{
+    width: "200px",
+    height: "150px",
+    borderRadius: "8px",
+    objectFit: "cover",
+    border: "2px solid #fff",
+    background: "#000",
+  }}
+/>
                     <div
                       className="position-absolute bottom-0 start-0 m-2 px-2 py-1 bg-dark bg-opacity-75 rounded"
                       style={{ fontSize: "0.75rem" }}
@@ -1331,7 +1620,11 @@ const handleDeleteForMe =
         
       </div>
 
-      <Whiteboard roomId={roomId} />
+      <Whiteboard
+  roomId={roomId}
+  userId={userId}
+  username={username}
+/>
 
       {/* Incoming Call Modal */}
       <Modal show={!!incomingCall} onHide={() => answerCall(false)} centered>

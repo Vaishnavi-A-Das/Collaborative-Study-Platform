@@ -31,6 +31,15 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use(cors());
 app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log(
+    req.method,
+    req.url
+  );
+  next();
+});
+
 app.use("/api/auth", authRoutes);
 app.use(
  "/api/users",
@@ -72,7 +81,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
   res.json({
-    url: `http://localhost:5000/uploads/${req.file.filename}`,
+    url: `http://192.168.1.7:5000/uploads/${req.file.filename}`,
     type: req.body.type || 'file'
   });
 });
@@ -89,14 +98,51 @@ let roomUsers = {};
 let userSockets = {};
 
 // --- Socket.IO connections ---
-io.on('connection', socket => {
-  const { userId, username } = socket.handshake.auth;
-  if (!userId || !username) {
-    console.log("❌ Invalid socket connection attempt");
-    return socket.disconnect();
-  }
+io.on(
+  "connection",
+  (socket) => {
 
-  console.log(`✅ User connected: ${username} (${userId})`);
+    console.log(
+      "RAW CONNECTION"
+    );
+
+    console.log(
+      "AUTH:",
+      socket.handshake.auth
+    );
+
+    const {
+      userId,
+      username
+    } =
+    socket.handshake.auth;
+
+    console.log(
+      "USER ID:",
+      userId
+    );
+
+    console.log(
+      "USERNAME:",
+      username
+    );
+
+    if (
+      !userId ||
+      !username
+    ) {
+
+      console.log(
+        "❌ INVALID SOCKET"
+      );
+
+      return socket.disconnect();
+    }
+
+    console.log(
+      "✅ USER CONNECTED:",
+      username
+    );
   userSockets[userId] = socket.id;
 
   socket.on(
@@ -381,39 +427,42 @@ socket.on(
   // Example: joinRoom
 socket.on(
   "joinRoom",
-  async ({ roomId }) => {
-    socket.join(roomId);
+  async ({
+    roomId
+  }) => {
 
-    if (!roomUsers[roomId]) {
-      roomUsers[roomId] = {};
-    }
+    console.log(
+      "📥 JOIN ROOM:",
+      roomId
+    );
 
-    roomUsers[roomId][socket.id] = {
-      username,
-      userId,
-      status: "online",
-    };
+    socket.join(
+      roomId
+    );
 
-    try {
-      const messages =
-        await Message.find({
-          roomId,
-        }).sort({
-          created_at: 1,
-        });
+    const messages =
+      await Message.find({
+        roomId
+      }).sort({
+        created_at: 1
+      });
 
-      socket.emit(
-        "loadMessages",
-        messages
-      );
-    } catch (err) {
-      console.error(
-        "Error loading messages:",
-        err
-      );
-    }
+    console.log(
+      "📨 FOUND MSGS:",
+      messages.length
+    );
 
-    io.to(roomId).emit(
+    socket.emit(
+      "loadMessages",
+      messages
+    );
+
+    console.log(
+      "📤 SENT loadMessages"
+    );
+
+
+ /*  io.to(roomId).emit(
       "updateUsers",
       Object.values(
         roomUsers[roomId]
@@ -426,7 +475,8 @@ socket.on(
         username,
         userId,
       }
-    );
+    ); */
+
   }
 );
 
@@ -769,4 +819,4 @@ io.emit(
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+server.listen(PORT,"0.0.0.0", () => console.log(`✅ Server running on port ${PORT}`));

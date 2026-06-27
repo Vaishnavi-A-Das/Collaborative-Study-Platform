@@ -19,7 +19,7 @@ const Auth = () => {
 
   try {
     const response = await fetch(
-      "http://localhost:5000/api/auth/register",
+      "http://192.168.1.7:5000/api/auth/register",
       {
         method: "POST",
         headers: {
@@ -57,9 +57,22 @@ const Auth = () => {
   e.preventDefault();
   setLoading(true);
 
+  console.log(
+ "LOGIN CLICKED"
+);
+
+console.log({
+ email,
+ password
+});
+
+console.log(
+ "FETCH STARTING"
+);
+
   try {
     const response = await fetch(
-      "http://localhost:5000/api/auth/login",
+      "http://192.168.1.7:5000/api/auth/login",
       {
         method: "POST",
         headers: {
@@ -87,10 +100,43 @@ const Auth = () => {
     toast.success("Welcome back!");
 
     navigate("/dashboard");
-  } catch (error) {
+  } catch (error) { 
+    console.log(
+ "LOGIN ERROR",
+ error
+);
     toast.error(error.message);
   } finally {
     setLoading(false);
+  }
+};
+
+const testBackend =
+ async () => {
+
+  try {
+
+    const res =
+      await fetch(
+        "http://192.168.1.7:5000/api/protected"
+      );
+
+    const text =
+      await res.text();
+
+    console.log(
+      "BACKEND OK:",
+      text
+    );
+
+  } catch (
+    err
+  ) {
+
+    console.log(
+      "BACKEND FAIL:",
+      err
+    );
   }
 };
 
@@ -167,6 +213,13 @@ useEffect(() => {
               {loading && <Spinner animation="border" size="sm" className="me-2" />}
               {loading ? "Signing in..." : "Sign In"}
             </button>
+            <button
+  className="btn btn-danger w-100 mt-2"
+  type="button"
+  onClick={testBackend}
+>
+  Test Backend
+</button>
           </form>
         )}
 

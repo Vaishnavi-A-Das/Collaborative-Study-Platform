@@ -1,4 +1,6 @@
 require("dotenv").config();
+const baseUrl = `${req.protocol}://${req.get("host")}`;
+
 
 
 const express = require('express');
@@ -63,7 +65,7 @@ app.get(
 );
 
 // --- Ensure uploads folder exists ---
-const uploadDir = path.join(__dirname, 'backend/uploads');
+const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 // --- Serve uploads ---
@@ -80,10 +82,10 @@ const upload = multer({ storage });
 app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
-  res.json({
-    url: `http://192.168.1.7:5000/uploads/${req.file.filename}`,
-    type: req.body.type || 'file'
-  });
+res.json({
+  url: `${baseUrl}/uploads/${req.file.filename}`,
+  type: req.body.type || "file",
+});
 });
 
 // --- Create server & Socket.IO ---

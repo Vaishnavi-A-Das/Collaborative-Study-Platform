@@ -18,8 +18,34 @@ const Whiteboard = ({
     userId,
     username
   );
-  
+  const drawLine = useCallback((x0, y0, x1, y1, strokeColor, width, emit = true) => {
+    const ctx = ctxRef.current;
+    if (!ctx) return;
 
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+    ctx.closePath();
+
+    if (!emit) return;
+    socket.emit("whiteboard-draw", { roomId, x0, y0, x1, y1, color: strokeColor, lineWidth: width });
+  },[socket,roomId]);
+  
+  const clearCanvas = useCallback((shouldEmit = true) => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (shouldEmit) {
+      socket.emit("whiteboard-clear", roomId);
+    }
+  },[socket,roomId]);
   // Initialize canvas
   useEffect(() => {
     if (!socket)
@@ -70,21 +96,7 @@ const Whiteboard = ({
     }
   }, [color, lineWidth, eraser]);
 
-  const drawLine = useCallback((x0, y0, x1, y1, strokeColor, width, emit = true) => {
-    const ctx = ctxRef.current;
-    if (!ctx) return;
-
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = width;
-    ctx.beginPath();
-    ctx.moveTo(x0, y0);
-    ctx.lineTo(x1, y1);
-    ctx.stroke();
-    ctx.closePath();
-
-    if (!emit) return;
-    socket.emit("whiteboard-draw", { roomId, x0, y0, x1, y1, color: strokeColor, lineWidth: width });
-  },)[socket,roomId];
+  
 
   const getCanvasCoordinates = (e) => {
     const canvas = canvasRef.current;
@@ -130,18 +142,7 @@ const Whiteboard = ({
     ctxRef.current.prev = { x, y };
   };
 
-  const clearCanvas = useCallback((shouldEmit = true) => {
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    if (!canvas || !ctx) return;
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if (shouldEmit) {
-      socket.emit("whiteboard-clear", roomId);
-    }
-  },[socket,roomId]);
+  
 
   const downloadCanvas = () => {
     const canvas = canvasRef.current;

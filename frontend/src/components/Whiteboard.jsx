@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { getSocket } from "../services/socket";
 
 const Whiteboard = ({
@@ -42,7 +42,7 @@ const Whiteboard = ({
     // White background
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }, [visible]);
+  }, [visible, socket, color, lineWidth]);
 
   // Handle remote drawing events
   useEffect(() => {
@@ -60,7 +60,7 @@ const Whiteboard = ({
       socket.off("whiteboard-draw", handleRemoteDraw);
       socket.off("whiteboard-clear", handleRemoteClear);
     };
-  }, [socket]);
+  }, [socket,drawLine,clearCanvas]);
 
   // Update stroke style when color or lineWidth changes
   useEffect(() => {
@@ -70,7 +70,7 @@ const Whiteboard = ({
     }
   }, [color, lineWidth, eraser]);
 
-  const drawLine = (x0, y0, x1, y1, strokeColor, width, emit = true) => {
+  const drawLine = useCallback((x0, y0, x1, y1, strokeColor, width, emit = true) => {
     const ctx = ctxRef.current;
     if (!ctx) return;
 
@@ -84,7 +84,7 @@ const Whiteboard = ({
 
     if (!emit) return;
     socket.emit("whiteboard-draw", { roomId, x0, y0, x1, y1, color: strokeColor, lineWidth: width });
-  };
+  },)[socket,roomId];
 
   const getCanvasCoordinates = (e) => {
     const canvas = canvasRef.current;
@@ -130,7 +130,7 @@ const Whiteboard = ({
     ctxRef.current.prev = { x, y };
   };
 
-  const clearCanvas = (shouldEmit = true) => {
+  const clearCanvas = useCallback((shouldEmit = true) => {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
     if (!canvas || !ctx) return;
@@ -141,7 +141,7 @@ const Whiteboard = ({
     if (shouldEmit) {
       socket.emit("whiteboard-clear", roomId);
     }
-  };
+  },[socket,roomId]);
 
   const downloadCanvas = () => {
     const canvas = canvasRef.current;

@@ -71,6 +71,7 @@ const localStreamRef =
     );
 
     clearCallRequest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [callRequest]);
   // ICE servers configuration
   const iceServers = {
@@ -235,6 +236,7 @@ socket.emit(
     socket.off("screenShareStarted");
     socket.off("screenShareStopped");
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [roomId, isMember, userId]);
 
   // Scroll to bottom on new messages

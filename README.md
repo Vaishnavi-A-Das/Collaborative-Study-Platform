@@ -1,68 +1,273 @@
-﻿# HTF25-Team-070
+# 📚 Collaborative Study Platform
 
-## GitHub submission guide
+A full-stack collaborative learning platform built using the **MERN Stack** that enables students to collaborate in real time through **chat, file sharing, collaborative whiteboard, and WebRTC-based audio/video calling**.
 
-In this Readme, you will find a guide on how to fork this Repository, add files to it, and make a pull request to contribute your changes.
+---
 
-<details open>
-<summary><h3>1. Login to your GitHub Account</h3></summary>
-<br>
-<p>Go to <a href="https://github.com">github.com</a> to log in.</p>
-<ul>
-   <li>Open the <a href="https://github.com/cbitosc/HTF25-Team-070">current repo</a> in a new tab.</li>
-   <li>Perform all operations in the newly opened tab, and follow the current tab for instructions.</li>
-</ul>
-</details>
+## 🚀 Live Demo
 
-<details open>
-<summary><h3>2. Fork the Repository</h3></summary>
-<br>
-<p align="center">
-  <img src="fork.jpeg" alt="Fork the Repository" height="300">
-</p>
-<ul>
- <li>In the newly opened tab, on the top-right corner, click on <b>Fork</b>.</li>
- <li>Enter the <b>Repository Name</b> as <b>HTF25-Team-070</b>.</li>
- <li>Then click <b>Create Fork</b>, leaving all other fields as default.</li>
- <li>After a few moments, you can view your forked repo.</li>
-</ul>
-</details>
+🌐 **Frontend:**  
+https://collaborative-study-platform-jet.vercel.app/
 
-<details open>
-<summary><h3>3. Clone your Repository</h3></summary>
-<br>
-<ul>
- <li>Click on <b>Code</b> and from the dropdown menu copy your <b>web URL</b> of your forked repository.</li>
- <li>Now open terminal on your local machine.</li>
- <li>Run this command to clone the repo:</li>
-<pre><code>git clone https://github.com/your-username/HTF25-Team-070.git</code></pre>
-</ul>
-</details>
+⚙️ **Backend:**  
+https://collaborative-study-platform.onrender.com
 
-<details open>
-<summary><h3>4. Adding files to the Repository</h3></summary>
-<br>
-<ul>
- <li>While doing it for the first time, create a new branch for your changes:</li>
-<pre><code>git checkout -b branch-name</code></pre>
- <li>Add your files or make modifications to existing files.</li>
- <li>Stage your changes:</li>
-<pre><code>git add .</code></pre>
- <li>Commit your changes:</li>
-<pre><code>git commit -m "Descriptive commit message"</code></pre>
- <li>Push your branch to your fork:</li>
-<pre><code>git push origin branch-name</code></pre>
-</ul>
-</details>
+---
 
-<details open>
-<summary><h3>5. Create a Pull Request</h3></summary>
-<br>
-<ul>
- <li>Click on the <b>Contribute</b> button in your fork and choose <b>Open Pull Request</b>.</li>
- <li>Leave all fields as default, then click <b>Create Pull Request</b>.</li>
- <li>Wait a few moments; your PR is now submitted.</li>
-</ul>
-</details>
+# ✨ Features
 
-## Thanks for participating!
+## 🔐 Authentication
+- User Registration & Login
+- JWT Authentication
+- Secure Password Hashing using bcrypt
+- Protected Routes
+
+## 👥 Study Rooms
+- Create Study Rooms
+- Join Existing Rooms
+- Invite Members
+- Admin Controls
+- Remove Members
+- Online/Offline Member Status
+
+## 💬 Real-Time Chat
+- Instant Messaging
+- Socket.IO Powered Communication
+- Real-Time Updates
+
+## 📁 File Sharing
+- Upload Files
+- Download Shared Files
+- Shared Resources Within Rooms
+
+## 🎨 Collaborative Whiteboard
+- Draw Together in Real Time
+- Adjustable Brush Size
+- Multiple Colors
+- Eraser Tool
+- Clear Canvas
+- Download Whiteboard as Image
+
+## 📞 Audio & Video Calling
+- One-to-One Audio Calls
+- One-to-One Video Calls
+- WebRTC Peer-to-Peer Communication
+- STUN Server Integration
+
+---
+
+# 🛠 Tech Stack
+
+### Frontend
+- React.js
+- Bootstrap
+- Axios
+- Socket.IO Client
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
+- Socket.IO
+- JWT
+- Multer
+
+### Real-Time Communication
+- WebRTC
+- Socket.IO
+- Google STUN Server
+
+### Deployment
+- Frontend → Vercel
+- Backend → Render
+- Database → MongoDB Atlas
+
+---
+
+# 📂 Project Structure
+
+```text
+Collaborative-Study-Platform/
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── context/
+│   │   └── App.js
+│   │
+│   └── package.json
+│
+├── backend/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── uploads/
+│   ├── server.js
+│   ├── server1.js
+│   └── package.json
+│
+└── README.md
+```
+
+---
+
+# ⚙️ Installation
+
+## Clone Repository
+
+```bash
+git clone https://github.com/Vaishnavi-A-Das/Collaborative-Study-Platform.git
+
+cd Collaborative-Study-Platform
+```
+
+---
+
+## Backend Setup
+
+```bash
+cd backend
+
+npm install
+
+npm start
+```
+
+Create a `.env` file inside the backend directory.
+
+```env
+PORT=5000
+
+MONGO_URI=YOUR_MONGODB_URI
+
+JWT_SECRET=YOUR_SECRET_KEY
+```
+
+---
+
+## Frontend Setup
+
+```bash
+cd frontend
+
+npm install
+
+npm start
+```
+
+Create a `.env` file inside the frontend directory.
+
+```env
+REACT_APP_API_URL=http://localhost:5000
+
+REACT_APP_SOCKET_URL=http://localhost:5000
+```
+
+---
+
+# 📡 Architecture
+
+```text
+                +--------------------+
+                |     React App      |
+                +--------------------+
+                         |
+        -----------------|------------------
+        |                |                 |
+        |                |                 |
+     REST API       Socket.IO          WebRTC
+        |                |                 |
+        |                |           Audio/Video
+        |                |
++--------------------+    |
+| Express Backend    |<---+
++--------------------+
+        |
+        |
+   MongoDB Atlas
+```
+
+---
+
+# 🔐 Authentication Flow
+
+```text
+User Login/Register
+        │
+        ▼
+JWT Token Generated
+        │
+        ▼
+Stored in Browser
+        │
+        ▼
+Authenticated API Requests
+```
+
+---
+
+# 📞 WebRTC Signaling Flow
+
+```text
+Caller
+   │
+Socket.IO Signaling
+   │
+Offer
+   │
+Receiver
+   │
+Answer
+   │
+ICE Candidate Exchange
+   │
+Peer-to-Peer Connection
+```
+
+---
+
+# 📸 Screenshots
+
+> Add screenshots of:
+- Login Page
+- Dashboard
+- Study Room
+- Chat
+- Whiteboard
+- Video Call
+- Members Panel
+
+---
+
+# 🌱 Future Enhancements
+
+- TURN Server Integration
+- Group Audio/Video Calls
+- Screen Sharing
+- Chat Notifications
+- Message Reactions
+- Collaborative Notes
+- Dark Mode
+- AI Study Assistant
+- Mobile Responsive UI Improvements
+
+---
+
+# 👨‍💻 Author
+
+**Vaishnavi A Das**
+
+GitHub:  
+https://github.com/Vaishnavi-A-Das
+
+
+---
+<img width="1535" height="720" alt="image" src="https://github.com/user-attachments/assets/0e300b67-9f65-4b86-bfbb-09368f0de549" />
+<img width="1281" height="516" alt="image" src="https://github.com/user-attachments/assets/8eb331a8-3c6f-4d34-81d0-6e250efd8e97" />
+<img width="1267" height="660" alt="image" src="https://github.com/user-attachments/assets/1fda6922-da77-4084-82a8-7c7ea1f8b3ea" />
+<img width="867" height="537" alt="image" src="https://github.com/user-attachments/assets/086c54de-af17-4996-b79a-be00315ab677" />
+<img width="560" height="461" alt="image" src="https://github.com/user-attachments/assets/2cf759f0-e62e-42d4-86ee-3a8730272ae2" />

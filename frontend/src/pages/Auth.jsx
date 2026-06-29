@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Spinner } from "react-bootstrap";
 import { useEffect } from "react";
-
+  const API_URL = process.env.REACT_APP_API_URL;
 const Auth = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -12,14 +12,14 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [activeTab, setActiveTab] = useState("signin");
-
+  
   const handleSignUp = async (e) => {
   e.preventDefault();
   setLoading(true);
 
   try {
     const response = await fetch(
-      "http://192.168.1.7:5000/api/auth/register",
+      `${API_URL}/api/auth/register`,
       {
         method: "POST",
         headers: {
@@ -72,7 +72,7 @@ console.log(
 
   try {
     const response = await fetch(
-      "http://192.168.1.7:5000/api/auth/login",
+      `${API_URL}/api/auth/login`,
       {
         method: "POST",
         headers: {
@@ -118,7 +118,7 @@ const testBackend =
 
     const res =
       await fetch(
-        "http://192.168.1.7:5000/api/protected"
+        `${API_URL}/api/protected`
       );
 
     const text =

@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL||"http://localhost:5000";
 let socket;
 
 export const getSocket = (
@@ -39,7 +39,7 @@ export const getSocket = (
   }
 
   socket = io(
-    "http://192.168.1.7:5000",
+    SOCKET_URL,
     {
       auth: {
         userId,
@@ -47,7 +47,8 @@ export const getSocket = (
       },
 
       transports: [
-        "websocket"
+        "websocket",
+        "pooling"
       ],
 
       autoConnect: true,

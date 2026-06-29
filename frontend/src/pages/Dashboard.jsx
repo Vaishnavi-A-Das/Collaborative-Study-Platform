@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 
-
+const API_URL = process.env.REACT_APP_API_URL;
 const Dashboard = () => {
   const [selectedRoomId, setSelectedRoomId] = useState(null);
 const [
@@ -72,7 +72,7 @@ useEffect(() => {
       try {
         const response =
           await fetch(
-            "http://192.168.1.7:5000/api/users"
+            `${API_URL}/api/users`
           );
 
         const data =
@@ -103,7 +103,7 @@ useEffect(() => {
 
         const response =
           await fetch(
-            `http://192.168.1.7:5000/api/rooms/${userId}`
+            `${API_URL}/api/rooms/${userId}`
           );
 
         const data =
@@ -473,7 +473,7 @@ const handleAcceptInvitation =
 
       const response =
         await fetch(
-          "http://192.168.1.7:5000/api/rooms/join",
+          `${API_URL}/api/rooms/join`,
           {
             method:
               "POST",
@@ -504,7 +504,7 @@ const handleAcceptInvitation =
   // REFRESH ROOMS
       const roomsResponse =
         await fetch(
-          `http://192.168.1.7:5000/api/rooms/${userId}`
+          `${API_URL}/api/rooms/${userId}`
         );
 
       const updatedRooms =

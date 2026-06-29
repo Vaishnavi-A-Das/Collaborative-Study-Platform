@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Modal, Spinner } from "react-bootstrap";
 import { toast } from "sonner";
-
+const API_URL = process.env.REACT_APP_API_URL;
 const CreateRoomDialog = ({ open, onOpenChange, userId, onRoomCreated }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -22,7 +22,7 @@ const CreateRoomDialog = ({ open, onOpenChange, userId, onRoomCreated }) => {
 
       const response =
         await fetch(
-          "http://192.168.1.7:5000/api/rooms/create",
+          `${API_URL}/api/rooms/create`,
           {
             method:
               "POST",

@@ -6,7 +6,7 @@ import { getSocket } from "../services/socket";
 import Whiteboard from "./Whiteboard";
 import EmojiPicker from "emoji-picker-react";
 const COMMON_EMOJIS = ["👍", "❤️", "😊", "🎉", "🔥", "👏", "✅"];
-
+const API_URL = process.env.REACT_APP_API_URL;
 const ChatArea = ({ roomId, userId, userRole, roomName, isMember,callRequest,
     clearCallRequest }) => {
   const [messages, setMessages] = useState([]);
@@ -906,7 +906,7 @@ if (selectedFile) {
 
   const response =
   await fetch(
-    "http://192.168.1.7:5000/upload",
+    `${API_URL}/upload`,
     {
       method: "POST",
       body: formData,

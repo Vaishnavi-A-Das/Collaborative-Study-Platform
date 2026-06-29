@@ -279,3 +279,6 @@ Calls
 
 Screenshare
 <img width="867" height="537" alt="image" src="https://github.com/user-attachments/assets/086c54de-af17-4996-b79a-be00315ab677" />
+
+Chatarea-consists of ROOMS INFO-**whiteboard,join room ,create room** ; CHATAREA-**react to message,attach files,pin message,delete for me and delete for everyone specifically for admin** an interactive **Chatbot** and member list showing **online and offline users**
+<img width="1529" height="701" alt="image" src="https://github.com/user-attachments/assets/9b2336df-fcf4-4bfe-a798-3eaa9209ac03" />

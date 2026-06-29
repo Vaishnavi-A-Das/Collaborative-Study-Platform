@@ -51,7 +51,7 @@ const offlineMembers =
             <p className="text-muted small mb-2">ONLINE — {onlineMembers.length}</p>
             <div className="d-flex flex-column gap-2">
               {onlineMembers.map((member) => (
-                <div key={member.user_id} className="d-flex align-items-center gap-2 p-2 rounded bg-light position-relative">
+                <div key={String(member.user_id?._id || member.user_id)} className="d-flex align-items-center gap-2 p-2 rounded bg-light position-relative">
                   <div className="position-relative">
                     <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: "32px", height: "32px", fontSize: "0.75rem" }}>
                       {member.display_name[0].toUpperCase()}
@@ -61,7 +61,7 @@ const offlineMembers =
                   <div className="flex-grow-1 text-truncate">
                     <p className="mb-0 small fw-medium text-truncate">
                       {member.display_name}
-                      {String(member.user_id?._id ||member.user_id) === currentUserId && <span className="text-muted"> (You)</span>}
+                      {(String(member.user_id?._id ||member.user_id) === currentUserId) && <span className="text-muted"> (You)</span>}
                     </p>
                     {member.role === "admin" && (
                       <p className="mb-0 text-warning" style={{ fontSize: "0.7rem" }}>👑 Admin</p>
@@ -70,10 +70,10 @@ const offlineMembers =
                  <div className="d-flex gap-1">
 
   {/* Audio Call */}
-  {String(
+  {(String(
     member.user_id?._id ||
     member.user_id
-  ) !== currentUserId && (
+  ) !== currentUserId) && (
     <button
       className="btn btn-sm btn-outline-primary py-0 px-1"
       onClick={() =>
@@ -89,10 +89,10 @@ const offlineMembers =
   )}
 
   {/* Video Call */}
-  {String(
+  {(String(
     member.user_id?._id ||
     member.user_id
-  ) !== currentUserId && (
+  ) !== currentUserId) && (
     <button
       className="btn btn-sm btn-outline-success py-0 px-1"
       onClick={() =>
@@ -109,11 +109,11 @@ const offlineMembers =
 
   {/* Remove */}
   {isAdmin &&
-    String(
+    (String(
       member.user_id?._id ||
       member.user_id
     ) !==
-      currentUserId &&
+      currentUserId) &&
     member.role !==
       "admin" && (
       <button
@@ -141,14 +141,14 @@ const offlineMembers =
             <p className="text-muted small mb-2">OFFLINE — {offlineMembers.length}</p>
             <div className="d-flex flex-column gap-2">
               {offlineMembers.map((member) => (
-                <div key={member.user_id?._id ||member.user_id} className="d-flex align-items-center gap-2 p-2 rounded opacity-50 position-relative">
+                <div key={String(member.user_id?._id || member.user_id)} className="d-flex align-items-center gap-2 p-2 rounded opacity-50 position-relative">
                   <div className="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: "32px", height: "32px", fontSize: "0.75rem" }}>
                     {member.display_name[0].toUpperCase()}
                   </div>
                   <div className="flex-grow-1 text-truncate">
                     <p className="mb-0 small fw-medium text-truncate">
                       {member.display_name}
-                      {member.user_id?._id ||member.user_id === currentUserId && <span className="text-muted"> (You)</span>}
+                      {(String(member.user_id?._id ||member.user_id ) === currentUserId )&& <span className="text-muted"> (You)</span>}
                     </p>
                     {member.role === "admin" && (
                       <p className="mb-0 text-warning" style={{ fontSize: "0.7rem" }}>👑 Admin</p>
@@ -157,10 +157,10 @@ const offlineMembers =
                  <div className="d-flex gap-1">
 
   {/* Audio Call */}
-  {String(
+  {(String(
     member.user_id?._id ||
     member.user_id
-  ) !== currentUserId && (
+  ) !== currentUserId ) && (
     <button
       className="btn btn-sm btn-outline-primary py-0 px-1"
       onClick={() =>
@@ -176,10 +176,10 @@ const offlineMembers =
   )}
 
   {/* Video Call */}
-  {String(
+  {(String(
     member.user_id?._id ||
     member.user_id
-  ) !== currentUserId && (
+  ) !== currentUserId) && (
     <button
       className="btn btn-sm btn-outline-success py-0 px-1"
       onClick={() =>
@@ -196,11 +196,11 @@ const offlineMembers =
 
   {/* Remove */}
   {isAdmin &&
-    String(
+    (String(
       member.user_id?._id ||
       member.user_id
     ) !==
-      currentUserId &&
+      currentUserId) &&
     member.role !==
       "admin" && (
       <button

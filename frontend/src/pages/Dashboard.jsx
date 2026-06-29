@@ -6,8 +6,7 @@ import JoinRoomModal from "../components/JoinRoomModal";
 import PendingRequestsModal from "../components/PendingRequestsModal";
 import InviteMembersModal from "../components/InviteMembersModal";
 import InvitationsModal from "../components/InvitationsModal";
-import { initSocket, closeSocket } from "../services/socket";
-import { useNavigate } from "react-router-dom";
+import { initSocket} from "../services/socket";
 import { toast } from "sonner";
 
 

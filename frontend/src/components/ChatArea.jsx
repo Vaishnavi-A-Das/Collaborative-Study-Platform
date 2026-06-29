@@ -13,7 +13,7 @@ const ChatArea = ({ roomId, userId, userRole, roomName, isMember,callRequest,
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsers, setTypingUsers] = useState([]);
-  const [uploading, setUploading] = useState(false);
+  const [uploading] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedFile,setSelectedFile] =useState(null);
@@ -366,7 +366,7 @@ await pc.addIceCandidate(
     }
   };
   
-  const processOffer = async (pc, fromId, offer, roomId) => {
+  const processOffer = async (pc, fromId, offer, roomId,mediaStream) => {
 
     await pc.setRemoteDescription(
         new RTCSessionDescription(offer)
@@ -383,11 +383,12 @@ for (const candidate of pending) {
 
 delete pendingIceCandidates.current[fromId];
 
-    const mediaStream =
-    mediaStream ||
-    localStreamRef.current;
+    const stream =
+  mediaStream ||
+  localStreamRef.current;
 
-    mediaStream.getTracks().forEach(track => {
+
+    stream.getTracks().forEach(track => {
 
         const alreadyAdded =
             pc.getSenders().some(
@@ -661,7 +662,6 @@ localStreamRef.current =
   stream;
 for (const user of usersToCall) {
 
-  const pc =
     await createPeerConnection(
       user.userId,
       true,

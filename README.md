@@ -274,8 +274,8 @@ Sign up/login
 <img width="427" height="596" alt="image" src="https://github.com/user-attachments/assets/491cc481-938b-4286-ae9f-709f90cd6187" />
 
 Calls
-<img width="230" height="400" alt="image" src="https://github.com/user-attachments/assets/8eb331a8-3c6f-4d34-81d0-6e250efd8e97" />
-<img width="230" height="400" alt="image" src="https://github.com/user-attachments/assets/1fda6922-da77-4084-82a8-7c7ea1f8b3ea" />
+<img width="300" height="500" alt="image" src="https://github.com/user-attachments/assets/8eb331a8-3c6f-4d34-81d0-6e250efd8e97" />
+<img width="300" height="500" alt="image" src="https://github.com/user-attachments/assets/1fda6922-da77-4084-82a8-7c7ea1f8b3ea" />
 
 Screenshare
 <img width="867" height="537" alt="image" src="https://github.com/user-attachments/assets/086c54de-af17-4996-b79a-be00315ab677" />

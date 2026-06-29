@@ -267,9 +267,15 @@ https://github.com/Vaishnavi-A-Das
 
 ---
 # Demo
-![Home Page]
+Home page 
 <img width="1535" height="720" alt="image" src="https://github.com/user-attachments/assets/0e300b67-9f65-4b86-bfbb-09368f0de549" />
-<img width="1281" height="516" alt="image" src="https://github.com/user-attachments/assets/8eb331a8-3c6f-4d34-81d0-6e250efd8e97" />
-<img width="1267" height="660" alt="image" src="https://github.com/user-attachments/assets/1fda6922-da77-4084-82a8-7c7ea1f8b3ea" />
+
+Sign up/login
+<img width="427" height="596" alt="image" src="https://github.com/user-attachments/assets/491cc481-938b-4286-ae9f-709f90cd6187" />
+
+ChatRoom Creation
 <img width="867" height="537" alt="image" src="https://github.com/user-attachments/assets/086c54de-af17-4996-b79a-be00315ab677" />
-<img width="560" height="461" alt="image" src="https://github.com/user-attachments/assets/2cf759f0-e62e-42d4-86ee-3a8730272ae2" />
+
+Calls
+<img width="230" height="400" alt="image" src="https://github.com/user-attachments/assets/8eb331a8-3c6f-4d34-81d0-6e250efd8e97" />
+<img width="230" height="400" alt="image" src="https://github.com/user-attachments/assets/1fda6922-da77-4084-82a8-7c7ea1f8b3ea" />

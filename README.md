@@ -87,31 +87,9 @@ https://collaborative-study-platform.onrender.com
 
 # 📂 Project Structure
 
-```text
-Collaborative-Study-Platform/
-│
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── context/
-│   │   └── App.js
-│   │
-│   └── package.json
-│
-├── backend/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── uploads/
-│   ├── server.js
-│   ├── server1.js
-│   └── package.json
-│
-└── README.md
-```
+
+<img width="1824" height="2672" alt="diagram" src="https://github.com/user-attachments/assets/5b6863a4-0f53-4aaf-a369-4a68fe75a93e" />
+
 
 ---
 

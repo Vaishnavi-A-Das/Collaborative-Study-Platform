@@ -48,7 +48,7 @@ export const getSocket = (
 
       transports: [
         "websocket",
-        "pooling"
+        "polling"
       ],
 
       autoConnect: true,

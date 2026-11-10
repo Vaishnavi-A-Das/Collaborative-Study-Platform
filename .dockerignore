@@ -1,0 +1,9 @@
+
+**/node_modules
+**/.env
+**/.env.*
+.git
+**/build
+**/dist
+**/coverage
+backend/uploads
